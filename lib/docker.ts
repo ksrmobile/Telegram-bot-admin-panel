@@ -98,8 +98,9 @@ export async function buildImage(
   );
 
   await new Promise<void>((resolve, reject) => {
-    docker.modem.followProgress(stream, (err) =>
-      err ? reject(err) : resolve()
+    docker.modem.followProgress(
+      stream,
+      (err: any) => (err ? reject(err) : resolve())
     );
   });
 }
