@@ -473,16 +473,14 @@ export function RunnerPanel({
                           {preset && (
                             <>
                               <Button
-                                size="xs"
+                                size="sm"
                                 variant="outline"
-                                onClick={() =>
-                                  applyPresetAndSave(preset)
-                                }
+                                onClick={() => applyPresetAndSave(preset)}
                               >
                                 Apply {preset.label}
                               </Button>
                               <Button
-                                size="xs"
+                                size="sm"
                                 onClick={async () => {
                                   await applyPresetAndSave(preset);
                                   await buildTemplate(true);
@@ -494,7 +492,7 @@ export function RunnerPanel({
                           )}
                           {d.actionHint === "open_config" && (
                             <Button
-                              size="xs"
+                              size="sm"
                               variant="outline"
                               onClick={() => {
                                 if (typeof window !== "undefined") {
