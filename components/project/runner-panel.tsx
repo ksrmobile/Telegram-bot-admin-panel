@@ -221,6 +221,42 @@ export function RunnerPanel({
     }
   }
 
+  async function setModeAndPersist(mode: "DOCKERFILE" | "TEMPLATE") {
+    const prev = runnerMode;
+    setRunnerMode(mode);
+    try {
+      const res = await fetch(
+        `/api/projects/${encodeURIComponent(slug)}/template-config`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken()
+          },
+          body: JSON.stringify({ runnerMode: mode })
+        }
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Unable to save runner mode");
+      }
+      push({
+        title: "Runner mode updated",
+        description:
+          mode === "DOCKERFILE"
+            ? "Using Dockerfile for builds."
+            : "Using template for builds."
+      });
+    } catch (err: any) {
+      setRunnerMode(prev);
+      push({
+        title: "Mode switch failed",
+        description: err.message || "Could not save runner mode",
+        variant: "destructive"
+      });
+    }
+  }
+
   async function saveTemplateConfig() {
     try {
       const res = await fetch(
@@ -546,7 +582,7 @@ export function RunnerPanel({
                 type="button"
                 size="sm"
                 variant={runnerMode === "DOCKERFILE" ? "default" : "outline"}
-                onClick={() => setRunnerMode("DOCKERFILE")}
+                onClick={() => setModeAndPersist("DOCKERFILE")}
               >
                 Dockerfile mode
               </Button>
@@ -554,7 +590,7 @@ export function RunnerPanel({
                 type="button"
                 size="sm"
                 variant={runnerMode === "TEMPLATE" ? "default" : "outline"}
-                onClick={() => setRunnerMode("TEMPLATE")}
+                onClick={() => setModeAndPersist("TEMPLATE")}
               >
                 Template mode
               </Button>
