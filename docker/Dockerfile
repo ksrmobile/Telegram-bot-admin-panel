@@ -1,5 +1,11 @@
 FROM node:20-slim
 
+# Run the panel as root inside the container so it can
+# access the Docker socket at /var/run/docker.sock without
+# extra group configuration. This is acceptable for the
+# intended single-tenant VPS deployment.
+USER root
+
 WORKDIR /app
 
 ENV NODE_ENV=production
