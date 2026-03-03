@@ -5,8 +5,10 @@ import { getGitInfo, gitPull } from "@/lib/git";
 import { getDockerInfo } from "@/lib/docker";
 import { verifyCsrfToken } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { runTemplateBuildJob } from "../template-build/route";
-import { runDockerfileBuildJob } from "../dockerfile-build/route";
+import {
+  runTemplateBuildJob,
+  runDockerfileBuildJob
+} from "@/lib/build-jobs";
 
 type Params = {
   params: { slug: string };
