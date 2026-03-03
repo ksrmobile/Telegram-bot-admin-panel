@@ -64,8 +64,8 @@ Data layout (inside panel container):
 ## 🚀 Quick start (development)
 
 ```bash
-git clone https://github.com/your-org/telegram-bot-admin-panel.git
-cd telegram-bot-admin-panel
+git clone https://github.com/ksrmobile/Telegram-bot-admin-panel.git
+cd Telegram-bot-admin-panel
 
 cp .env.example .env   # adjust ports / DB if needed
 npm install
@@ -80,6 +80,27 @@ Then open `http://localhost:3000/login` and sign in with the admin credentials c
 ---
 
 ## 🏗️ Production (Ubuntu VPS + Docker)
+
+### One‑line install
+
+On a fresh Ubuntu VPS:
+
+```bash
+git clone https://github.com/ksrmobile/Telegram-bot-admin-panel.git \
+  && cd Telegram-bot-admin-panel \
+  && sudo bash scripts/install.sh
+```
+
+The install script will:
+
+- Install Docker & Docker Compose plugin (if needed)
+- Set up the panel + data directories
+- Generate `.env` with sensible defaults
+- Start the panel via Docker Compose
+
+Then open `http://YOUR_SERVER_IP:8080` in your browser and log in with the admin credentials from `.env`.
+
+### Manual overview
 
 High‑level steps:
 
