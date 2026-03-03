@@ -6,6 +6,11 @@ import { Button } from "../../../components/ui/button";
 import { Plus } from "lucide-react";
 import { ProjectsListClient } from "../../../components/project/projects-list-client";
 
+// Avoid static generation for this page so Prisma runs only at runtime
+// inside the container where the SQLite database file is available.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getProjectsWithMeta() {
   const projects = await prisma.project.findMany({
     orderBy: { createdAt: "desc" },

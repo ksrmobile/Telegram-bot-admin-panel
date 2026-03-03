@@ -6,6 +6,11 @@ import { Plus, UploadCloud, Activity, HardDrive, Cpu, AlertCircle, Server } from
 import Link from "next/link";
 import { SystemHealthWidget } from "../../components/system/SystemHealthWidget";
 
+// Force this page to be rendered dynamically at request time so that
+// Prisma never runs during `next build` (when the SQLite file is not available).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getStats() {
   const [total, running, stopped, errors] = await Promise.all([
     prisma.project.count(),

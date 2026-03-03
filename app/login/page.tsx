@@ -1,5 +1,10 @@
 "use client";
 
+// This page uses `useSearchParams`, which Next.js expects to be wrapped
+// in a Suspense boundary during static generation. We instead opt out of
+// static generation and always render it dynamically at runtime.
+export const dynamic = "force-dynamic";
+
 import { useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Shield, Lock, Eye, EyeOff, Check } from "lucide-react";
