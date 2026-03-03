@@ -106,7 +106,12 @@ function checkRateLimit(ip: string) {
 
 export async function authenticate(
   body: unknown
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{
+  success: boolean;
+  error?: string;
+  sessionToken?: string;
+  csrfToken?: string;
+}> {
   const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {
     return { success: false, error: "Invalid input" };
