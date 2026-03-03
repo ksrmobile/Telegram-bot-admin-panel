@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id                 Int        @id @default(autoincrement())
+  name               String
+  slug               String     @unique
+  createdAt          DateTime   @default(now())
+  workspacePath      String
+  runtimeType        String
+  startCommand       String
+  dockerImageName    String?
+  dockerContainerName String?
+  envFilePath        String?
+  status             String   @default("STOPPED")
+  cpuLimit           Float?   // in cores, e.g. 0.5
+  memoryLimitMb      Int?     // in MB
+
+  // Runner / template mode configuration
+  /// "DOCKERFILE" | "TEMPLATE"
+  runnerMode          String   @default("DOCKERFILE")
+  /// Template runtime: "PYTHON" | "NODE" | "CUSTOM"
+  templateRuntime     String?
+  /// Optional workdir inside container (e.g. "/app")
+  templateWorkdir     String?
+  /// Install strategy hint, e.g. "pip_requirements", "pip_editable", "npm_ci", "npm_install"
+  templateInstall     String?
+  /// Space-separated apt package list (sanitized)
+  templateAptPackages String?
+  /// Optional base image override for CUSTOM runtime
+  templateBaseImage   String?
+  /// Optional exposed port for webhook/server bots
+  templateExposePort  Int?
+  /// If true, bind-mount workspace instead of copying on build (advanced)
+  bindMountWorkspace  Boolean? @default(false)
+
+  auditLogs          AuditLog[]
+  buildJobs          BuildJob[]
+}
+
+model BuildJob {
+  id          Int      @id @default(autoincrement())
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   Int
+  kind        String   // e.g. "TEMPLATE_BUILD"
+  status      String   // "QUEUED" | "RUNNING" | "SUCCESS" | "FAILED"
+  noCache     Boolean  @default(false)
+  log         String?  // truncated build log
+  error       String?
+  imageTag    String?
+  autoRestart Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  startedAt   DateTime?
+  finishedAt  DateTime?
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  createdAt DateTime @default(now())
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId Int?
+}
+
+model PanelSettings {
+  id             Int      @id @default(1)
+  notifyBotToken String?
+  notifyChatId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+

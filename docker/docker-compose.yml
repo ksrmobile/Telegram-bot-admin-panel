@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  panel:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    container_name: ksr-tg-bot-panel
+    env_file:
+      - ../.env
+    ports:
+      - "${PANEL_PORT:-8080}:3000"
+    volumes:
+      - /var/lib/ksr-tg-panel/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+

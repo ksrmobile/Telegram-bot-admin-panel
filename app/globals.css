@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme – off-white page, elevated cards, stronger borders, purple accent */
+  --background: 230 14% 95%;
+  --foreground: 230 18% 14%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 230 18% 14%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 230 18% 14%;
+
+  --primary: 259 84% 66%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 230 18% 90%;
+  --secondary-foreground: 230 18% 18%;
+
+  --muted: 230 16% 92%;
+  --muted-foreground: 230 12% 38%;
+
+  --accent: 259 84% 66%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 230 14% 78%;
+  --input: 230 14% 78%;
+  --ring: 259 84% 66%;
+
+  --sidebar: 230 16% 93%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 230 25% 4%;
+  --foreground: 210 40% 98%;
+
+  --card: 230 27% 8%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 230 27% 8%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 259 84% 66%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 230 23% 15%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 230 23% 16%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 259 84% 66%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 230 23% 18%;
+  --input: 230 23% 18%;
+  --ring: 259 84% 66%;
+  --sidebar: 230 27% 6%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+}
+
+.premium-card {
+  @apply bg-card border border-border rounded-lg transition-shadow;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.premium-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .premium-card {
+  box-shadow: none;
+  @apply shadow-sm hover:shadow-md;
+}
+
