@@ -165,7 +165,10 @@ export async function getSession(): Promise<{
   if (!token) return null;
 
   try {
-    const decoded = jwt.verify(token, getSessionSecret()) as JwtPayload;
+    const decoded = jwt.verify(
+      token,
+      getSessionSecret()
+    ) as unknown as JwtPayload;
     return { userId: decoded.sub, username: decoded.username };
   } catch {
     return null;
