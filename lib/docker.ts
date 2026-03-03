@@ -166,7 +166,7 @@ export async function runContainer(options: RunOptions) {
       ? options.memoryLimitMb * 1024 * 1024
       : undefined;
 
-  const hostConfig: Docker.ContainerCreateOptions["HostConfig"] = {
+  const hostConfig: any = {
     Binds: [
       `${options.bindPath}:${options.workdir || "/app"}:${
         options.readOnly ? "ro" : "rw"
