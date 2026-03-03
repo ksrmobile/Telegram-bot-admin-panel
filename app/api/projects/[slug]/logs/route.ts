@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../../../lib/prisma";
-import { streamContainerLogs } from "../../../../../lib/docker";
+import { prisma } from "@/lib/prisma";
+import { streamContainerLogs } from "@/lib/docker";
 
 type Params = {
   params: { slug: string };

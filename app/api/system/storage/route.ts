@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getSystemStorageSummary } from "../../../../lib/storage";
-import { pruneDanglingImages } from "../../../../lib/docker";
-import { verifyCsrfToken } from "../../../../lib/auth";
-import { logAudit } from "../../../../lib/audit";
+import { getSystemStorageSummary } from "@/lib/storage";
+import { pruneDanglingImages } from "@/lib/docker";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET() {
   const summary = await getSystemStorageSummary();

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
-import { gitClone, isGitRepo } from "../../../../../lib/git";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { logAudit } from "../../../../../lib/audit";
+import { prisma } from "@/lib/prisma";
+import { gitClone, isGitRepo } from "@/lib/git";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 type Params = {
   params: { slug: string };

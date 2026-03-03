@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
-import { getContainerStatus, getRecentLogs } from "../../../../../lib/docker";
-import { cleanLogText } from "../../../../../lib/log-sanitize";
+import { prisma } from "@/lib/prisma";
+import { getContainerStatus, getRecentLogs } from "@/lib/docker";
+import { cleanLogText } from "@/lib/log-sanitize";
 
 type Params = {
   params: { slug: string };

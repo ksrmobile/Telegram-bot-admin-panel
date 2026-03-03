@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { getProjectRoot } from "../../../lib/paths";
+import { getProjectRoot } from "@/lib/paths";
 import fs from "fs";
 
 const createSchema = z.object({

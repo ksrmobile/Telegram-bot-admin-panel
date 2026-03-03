@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getProjectsRoot } from "../../../../lib/paths";
+import { getProjectsRoot } from "@/lib/paths";
 import fs from "fs";
-import { getDockerInfo } from "../../../../lib/docker";
+import { getDockerInfo } from "@/lib/docker";
 
 async function getDiskStatus() {
   const root = getProjectsRoot();

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
-import { verifyCsrfToken } from "../../../../lib/auth";
-import { stopAndRemoveContainer, removeImage } from "../../../../lib/docker";
-import { logAudit } from "../../../../lib/audit";
+import { verifyCsrfToken } from "@/lib/auth";
+import { stopAndRemoveContainer, removeImage } from "@/lib/docker";
+import { logAudit } from "@/lib/audit";
 
 type Params = {
   params: { slug: string };

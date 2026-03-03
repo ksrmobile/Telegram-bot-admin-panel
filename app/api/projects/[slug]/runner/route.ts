@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
-import { resolveProjectPath } from "../../../../../lib/paths";
+import { prisma } from "@/lib/prisma";
+import { resolveProjectPath } from "@/lib/paths";
 import {
   buildImage,
   runContainer,
   stopAndRemoveContainer,
   restartContainer,
   getContainerStatus
-} from "../../../../../lib/docker";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { logAudit } from "../../../../../lib/audit";
-import { watchContainerForCrashes } from "../../../../../lib/notifications";
+} from "@/lib/docker";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
+import { watchContainerForCrashes } from "@/lib/notifications";
 
 type Params = {
   params: { slug: string };

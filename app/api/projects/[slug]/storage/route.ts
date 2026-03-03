@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import path from "path";
-import { prisma } from "../../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import {
   getProjectStorage,
   deleteProjectBuildContext,
   cleanupTmpBackupsForProject
-} from "../../../../../lib/storage";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { logAudit } from "../../../../../lib/audit";
+} from "@/lib/storage";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 type Params = {
   params: { slug: string };

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { resolveProjectPath } from "../../../../../lib/paths";
-import { prisma } from "../../../../../lib/prisma";
-import { verifyCsrfToken } from "../../../../../lib/auth";
+import { resolveProjectPath } from "@/lib/paths";
+import { prisma } from "@/lib/prisma";
+import { verifyCsrfToken } from "@/lib/auth";
 
 type Params = {
   params: { slug: string };

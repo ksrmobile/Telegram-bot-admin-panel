@@ -92,12 +92,22 @@ SERVER_IP=$(hostname -I | awk '{print $1}')
 SERVER_IP=${SERVER_IP:-"YOUR_SERVER_IP"}
 
 echo
-echo "==============================================="
-echo " KSR TG Bot Panel installation complete"
-echo "==============================================="
-echo "Access URL:  http://$SERVER_IP:${PANEL_PORT:-8080}"
-echo "Admin user:  ${ADMIN_USER:-admin}"
-echo "Admin pass:  $ADMIN_PASS"
+RESET='\033[0m'
+BOLD='\033[1m'
+DIM='\033[2m'
+PANEL_BG='\033[48;5;236m'
+PANEL_BORDER='\033[38;5;105m'
+LABEL_COLOR='\033[38;5;110m'
+VALUE_COLOR='\033[38;5;252m'
+TITLE_COLOR='\033[38;5;183m'
+
+echo -e "${PANEL_BORDER}============================================================${RESET}"
+echo -e "${PANEL_BG}${TITLE_COLOR}${BOLD}  Telegram Bot Admin Panel installed successfully${RESET}"
+echo -e "${PANEL_BORDER}------------------------------------------------------------${RESET}"
+echo -e "${PANEL_BG}  ${LABEL_COLOR}URL  ${RESET}${PANEL_BG}${DIM}:${RESET}${PANEL_BG} ${VALUE_COLOR}http://$SERVER_IP:${PANEL_PORT:-8080}${RESET}"
+echo -e "${PANEL_BG}  ${LABEL_COLOR}User ${RESET}${PANEL_BG}${DIM}:${RESET}${PANEL_BG} ${VALUE_COLOR}${ADMIN_USER:-admin}${RESET}"
+echo -e "${PANEL_BG}  ${LABEL_COLOR}Pass ${RESET}${PANEL_BG}${DIM}:${RESET}${PANEL_BG} ${VALUE_COLOR}$ADMIN_PASS${RESET}"
+echo -e "${PANEL_BORDER}============================================================${RESET}"
 echo
 echo "Security tips:"
 echo "- Consider placing the panel behind an HTTPS reverse proxy (nginx, Caddy, Traefik)."

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { prisma } from "../../../../../lib/prisma";
-import { resolveProjectPath } from "../../../../../lib/paths";
-import { safeExtractZip } from "../../../../../lib/zip";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { applyRateLimit } from "../../../../../lib/rate-limit";
-import { logAudit } from "../../../../../lib/audit";
+import { prisma } from "@/lib/prisma";
+import { resolveProjectPath } from "@/lib/paths";
+import { safeExtractZip } from "@/lib/zip";
+import { verifyCsrfToken } from "@/lib/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/audit";
 
 type Params = {
   params: { slug: string };

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
-import { resolveProjectPath } from "../../../../../lib/paths";
-import { maskSecret } from "../../../../../lib/secrets";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { logAudit } from "../../../../../lib/audit";
+import { prisma } from "@/lib/prisma";
+import { resolveProjectPath } from "@/lib/paths";
+import { maskSecret } from "@/lib/secrets";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { z } from "zod";
 
 type Params = {

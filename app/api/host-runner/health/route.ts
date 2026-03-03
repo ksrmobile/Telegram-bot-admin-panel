@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkHostAgentHealth } from "../../../../lib/host-agent";
+import { checkHostAgentHealth } from "@/lib/host-agent";
 
 export async function GET() {
   const status = await checkHostAgentHealth();

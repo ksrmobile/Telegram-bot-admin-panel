@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import path from "path";
-import { prisma } from "../../../../../lib/prisma";
-import { getGitInfo, gitPull } from "../../../../../lib/git";
-import { getDockerInfo } from "../../../../../lib/docker";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { logAudit } from "../../../../../lib/audit";
+import { prisma } from "@/lib/prisma";
+import { getGitInfo, gitPull } from "@/lib/git";
+import { getDockerInfo } from "@/lib/docker";
+import { verifyCsrfToken } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { runTemplateBuildJob } from "../template-build/route";
 import { runDockerfileBuildJob } from "../dockerfile-build/route";
 

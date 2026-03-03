@@ -5,7 +5,7 @@ import {
   CSRF_COOKIE,
   getSessionCookieOptions,
   getCsrfCookieOptions
-} from "../../../../lib/auth";
+} from "@/lib/auth";
 import { z } from "zod";
 
 const bodySchema = z.object({

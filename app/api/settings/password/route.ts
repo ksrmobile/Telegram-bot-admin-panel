@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { prisma } from "../../../lib/prisma";
-import { requireSession, verifyCsrfToken } from "../../../lib/auth";
+import { prisma } from "@/lib/prisma";
+import { requireSession, verifyCsrfToken } from "@/lib/auth";
 
 const bodySchema = z.object({
   currentPassword: z.string().min(1),

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
-import { resolveProjectPath } from "../../../../../lib/paths";
-import { createZipFromDirectory } from "../../../../../lib/zip";
+import { prisma } from "@/lib/prisma";
+import { resolveProjectPath } from "@/lib/paths";
+import { createZipFromDirectory } from "@/lib/zip";
 
 type Params = {
   params: { slug: string };

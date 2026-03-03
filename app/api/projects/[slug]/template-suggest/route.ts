@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { prisma } from "../../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 type Params = {
   params: { slug: string };

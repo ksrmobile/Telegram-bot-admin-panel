@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { prisma } from "../../../../../lib/prisma";
-import { resolveProjectPath } from "../../../../../lib/paths";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { applyRateLimit } from "../../../../../lib/rate-limit";
+import { prisma } from "@/lib/prisma";
+import { resolveProjectPath } from "@/lib/paths";
+import { verifyCsrfToken } from "@/lib/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 type Params = {
   params: { slug: string };

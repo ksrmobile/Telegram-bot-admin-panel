@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import { z } from "zod";
-import { prisma } from "../../../../../lib/prisma";
-import { buildImageWithLogs, getDockerInfo, restartContainer } from "../../../../../lib/docker";
-import { verifyCsrfToken } from "../../../../../lib/auth";
-import { getBuildContextRoot } from "../../../../../lib/paths";
+import { prisma } from "@/lib/prisma";
+import { buildImageWithLogs, getDockerInfo, restartContainer } from "@/lib/docker";
+import { verifyCsrfToken } from "@/lib/auth";
+import { getBuildContextRoot } from "@/lib/paths";
 
 type Params = {
   params: { slug: string };

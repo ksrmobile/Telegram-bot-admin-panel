@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSessionFromRequest } from "./lib/auth-middleware";
+import { getSessionFromRequest } from "@/lib/auth-middleware";
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login"];
 

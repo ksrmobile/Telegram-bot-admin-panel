@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getPanelSettings, updatePanelSettings } from "../../../../lib/panel-settings";
-import { maskSecret } from "../../../../lib/secrets";
-import { requireSession, verifyCsrfToken } from "../../../../lib/auth";
+import { getPanelSettings, updatePanelSettings } from "@/lib/panel-settings";
+import { maskSecret } from "@/lib/secrets";
+import { requireSession, verifyCsrfToken } from "@/lib/auth";
 
 const bodySchema = z.object({
   notifyBotToken: z.string().max(200).optional(),
