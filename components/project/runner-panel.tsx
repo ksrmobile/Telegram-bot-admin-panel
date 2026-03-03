@@ -681,7 +681,7 @@ export function RunnerPanel({
                         </span>
                       )}
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="outline"
                         onClick={useSuggestedCommand}
                       >
@@ -793,7 +793,7 @@ export function RunnerPanel({
                                   {preset && (
                                     <div className="mt-1 flex flex-wrap gap-2">
                                       <Button
-                                        size="xs"
+                                        size="sm"
                                         variant="outline"
                                         onClick={() =>
                                           applyPresetAndSave(preset)
@@ -802,7 +802,7 @@ export function RunnerPanel({
                                         Apply {preset.label}
                                       </Button>
                                       <Button
-                                        size="xs"
+                                        size="sm"
                                         onClick={async () => {
                                           await applyPresetAndSave(preset);
                                           await buildTemplate(true);
