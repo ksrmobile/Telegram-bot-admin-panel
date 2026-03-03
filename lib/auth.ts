@@ -12,13 +12,26 @@ export const CSRF_COOKIE = "ksr_csrf";
 
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
-/** Cookie options for local dev (http) and production (https). Use when setting cookies on NextResponse. */
+/**
+ * Cookie options used when setting cookies on NextResponse.
+ * We default to non-secure cookies so HTTP deployments (like a raw VPS
+ * on an IP and port) work out of the box. When terminating HTTPS in
+ * front of the panel (nginx/Caddy/etc), you can enable secure cookies
+ * by setting COOKIE_SECURE=true in the environment.
+ */
+const COOKIE_SECURE =
+  process.env.COOKIE_SECURE === "true"
+    ? true
+    : process.env.COOKIE_SECURE === "false"
+    ? false
+    : false;
+
 export function getSessionCookieOptions() {
   return {
     httpOnly: true,
     path: "/",
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: COOKIE_SECURE,
     maxAge: SESSION_MAX_AGE
   };
 }
@@ -28,7 +41,7 @@ export function getCsrfCookieOptions() {
     httpOnly: false,
     path: "/",
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: COOKIE_SECURE,
     maxAge: SESSION_MAX_AGE
   };
 }
