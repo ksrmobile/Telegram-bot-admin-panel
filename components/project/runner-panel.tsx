@@ -257,6 +257,46 @@ export function RunnerPanel({
     }
   }
 
+  async function setRuntimeAndPersist(
+    runtime: "NODE" | "PYTHON" | "CUSTOM"
+  ) {
+    const prev = templateRuntime;
+    setTemplateRuntime(runtime);
+    try {
+      const res = await fetch(
+        `/api/projects/${encodeURIComponent(slug)}/template-config`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken()
+          },
+          body: JSON.stringify({ templateRuntime: runtime })
+        }
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Unable to save runtime");
+      }
+      push({
+        title: "Runtime updated",
+        description:
+          runtime === "PYTHON"
+            ? "Using Python template runtime."
+            : runtime === "NODE"
+            ? "Using Node template runtime."
+            : "Using custom template runtime."
+      });
+    } catch (err: any) {
+      setTemplateRuntime(prev);
+      push({
+        title: "Runtime switch failed",
+        description: err.message || "Could not save runtime",
+        variant: "destructive"
+      });
+    }
+  }
+
   async function saveTemplateConfig() {
     try {
       const res = await fetch(
@@ -611,7 +651,7 @@ export function RunnerPanel({
                       variant={
                         templateRuntime === "PYTHON" ? "default" : "outline"
                       }
-                      onClick={() => setTemplateRuntime("PYTHON")}
+                      onClick={() => setRuntimeAndPersist("PYTHON")}
                     >
                       Python
                     </Button>
@@ -621,7 +661,7 @@ export function RunnerPanel({
                       variant={
                         templateRuntime === "NODE" ? "default" : "outline"
                       }
-                      onClick={() => setTemplateRuntime("NODE")}
+                      onClick={() => setRuntimeAndPersist("NODE")}
                     >
                       Node
                     </Button>
@@ -631,7 +671,7 @@ export function RunnerPanel({
                       variant={
                         templateRuntime === "CUSTOM" ? "default" : "outline"
                       }
-                      onClick={() => setTemplateRuntime("CUSTOM")}
+                      onClick={() => setRuntimeAndPersist("CUSTOM")}
                     >
                       Custom
                     </Button>
