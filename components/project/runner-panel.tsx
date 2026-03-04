@@ -59,6 +59,7 @@ export function RunnerPanel({
   const [suggestedCmd, setSuggestedCmd] = useState<string | null>(null);
   const [suggestReason, setSuggestReason] = useState<string | null>(null);
   const [hasDockerfile, setHasDockerfile] = useState(false);
+  const [wrapperFolder, setWrapperFolder] = useState<string | null>(null);
   const [buildJobs, setBuildJobs] = useState<any[]>([]);
   const [diagnose, setDiagnose] = useState<{
     lastLogs: string[];
@@ -130,6 +131,7 @@ export function RunnerPanel({
         setSuggestedCmd(json.suggestedStartCommand || null);
         setSuggestReason(json.reason || null);
         setHasDockerfile(Boolean(json.hasDockerfile));
+        setWrapperFolder(json.wrapperFolder || null);
       } catch {
         // ignore
       }
@@ -639,6 +641,20 @@ export function RunnerPanel({
 
           {runnerMode === "TEMPLATE" && (
             <div className="space-y-3">
+              {wrapperFolder && (
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-2 text-[11px]">
+                  <div className="font-semibold text-amber-200">
+                    Fix project root
+                  </div>
+                  <div className="text-amber-100">
+                    This workspace looks like it has an extra top-level folder{" "}
+                    <code>{wrapperFolder}</code>. The suggested start command
+                    below already uses this path. For a cleaner layout, you can
+                    move the files inside <code>{wrapperFolder}</code> up one
+                    level in the Files tab and rebuild.
+                  </div>
+                </div>
+              )}
               <div className="grid gap-2 md:grid-cols-3">
                 <div className="space-y-1">
                   <span className="text-muted-foreground text-[11px]">
