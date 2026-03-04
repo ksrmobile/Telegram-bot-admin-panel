@@ -145,6 +145,11 @@ CMD ["sh", "-c", "${project.startCommand}"]
       project.envFilePath || path.join(workspace, ".env");
     const env = await loadEnv(envPath);
 
+    const templateWorkdir =
+      (project as any).templateWorkdir && runnerMode === "TEMPLATE"
+        ? ((project as any).templateWorkdir as string)
+        : undefined;
+
     await runContainer({
       image: imageName,
       name: containerName,
@@ -154,7 +159,7 @@ CMD ["sh", "-c", "${project.startCommand}"]
       memoryLimitMb: project.memoryLimitMb || undefined,
       bindPath: workspace,
       readOnly: false,
-      workdir: "/app",
+      workdir: runnerMode === "TEMPLATE" ? templateWorkdir : "/app",
       restartPolicy: "unless-stopped",
       ports:
         (project as any).templateExposePort && runnerMode === "TEMPLATE"

@@ -124,10 +124,16 @@ export async function runTemplateBuildJob(jobId: number) {
 
     const workdir = project.templateWorkdir || "/app";
 
-    const startCmd = (project.startCommand || "npm start").replace(
-      /"/g,
-      '\\"'
-    );
+    let startCmdRaw: string | null | undefined =
+      (project.startCommand as string | null | undefined) || null;
+    if (!startCmdRaw || !startCmdRaw.trim()) {
+      if (runtime === "PYTHON") {
+        startCmdRaw = "python main.py";
+      } else {
+        startCmdRaw = "npm start";
+      }
+    }
+    const startCmd = startCmdRaw.replace(/"/g, '\\"');
 
     const hasRequirements = fs.existsSync(
       path.join(workspace, "requirements.txt")

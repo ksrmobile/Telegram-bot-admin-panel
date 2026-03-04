@@ -25,6 +25,7 @@ type RunnerStatus = {
     startCommand?: string;
     templateRuntime?: string | null;
     templateAptPackages?: string | null;
+    templateWorkdir?: string | null;
     templateExposePort?: number | null;
   };
 };
@@ -55,11 +56,14 @@ export function RunnerPanel({
   >("NODE");
   const [aptPackages, setAptPackages] = useState("");
   const [exposePort, setExposePort] = useState<string>("");
-  const [presetId, setPresetId] = useState<TemplatePresetId | "" >("");
+  const [startCommand, setStartCommand] = useState<string>("");
+  const [templateWorkdir, setTemplateWorkdir] = useState<string>("/app");
+  const [presetId, setPresetId] = useState<TemplatePresetId | "">("");
   const [suggestedCmd, setSuggestedCmd] = useState<string | null>(null);
   const [suggestReason, setSuggestReason] = useState<string | null>(null);
   const [hasDockerfile, setHasDockerfile] = useState(false);
   const [wrapperFolder, setWrapperFolder] = useState<string | null>(null);
+  const [suggestedWorkdir, setSuggestedWorkdir] = useState<string | null>(null);
   const [buildJobs, setBuildJobs] = useState<any[]>([]);
   const [diagnose, setDiagnose] = useState<{
     lastLogs: string[];
@@ -107,6 +111,12 @@ export function RunnerPanel({
       if (json.project.templateExposePort != null) {
         setExposePort(String(json.project.templateExposePort));
       }
+      if (json.project.startCommand) {
+        setStartCommand(json.project.startCommand);
+      }
+      if (json.project.templateWorkdir) {
+        setTemplateWorkdir(json.project.templateWorkdir);
+      }
     } catch (err) {
       // ignore transient
     }
@@ -132,6 +142,7 @@ export function RunnerPanel({
         setSuggestReason(json.reason || null);
         setHasDockerfile(Boolean(json.hasDockerfile));
         setWrapperFolder(json.wrapperFolder || null);
+        setSuggestedWorkdir(json.suggestedWorkdir || null);
       } catch {
         // ignore
       }
@@ -300,6 +311,15 @@ export function RunnerPanel({
   }
 
   async function saveTemplateConfig() {
+    if (!startCommand.trim()) {
+      push({
+        title: "Validation error",
+        description: "Start command cannot be empty.",
+        variant: "destructive"
+      });
+      return;
+    }
+    const workdir = templateWorkdir || "/app";
     try {
       const res = await fetch(
         `/api/projects/${encodeURIComponent(slug)}/template-config`,
@@ -312,8 +332,9 @@ export function RunnerPanel({
           body: JSON.stringify({
             runnerMode,
             templateRuntime,
-            templateWorkdir: "/app",
+            templateWorkdir: workdir,
             templateAptPackages: aptPackages,
+            startCommand,
             templateExposePort: exposePort
               ? Number.parseInt(exposePort, 10)
               : null
@@ -385,6 +406,10 @@ export function RunnerPanel({
 
   async function useSuggestedCommand() {
     if (!suggestedCmd) return;
+    const workdir =
+      suggestedWorkdir && typeof suggestedWorkdir === "string"
+        ? suggestedWorkdir
+        : templateWorkdir || "/app";
     try {
       const res = await fetch(
         `/api/projects/${encodeURIComponent(slug)}/template-config`,
@@ -395,7 +420,8 @@ export function RunnerPanel({
             "x-csrf-token": getCsrfToken()
           },
           body: JSON.stringify({
-            startCommand: suggestedCmd
+            startCommand: suggestedCmd,
+            templateWorkdir: workdir
           })
         }
       );
@@ -403,9 +429,11 @@ export function RunnerPanel({
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Unable to apply suggested command");
       }
+      setStartCommand(suggestedCmd);
+      setTemplateWorkdir(workdir);
       push({
         title: "Start command updated",
-        description: `Using suggested command: ${suggestedCmd}`
+        description: `Using suggested command: ${suggestedCmd} (workdir ${workdir})`
       });
       await fetchStatus();
     } catch (err: any) {
@@ -751,64 +779,95 @@ export function RunnerPanel({
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="space-y-1 text-[11px] text-muted-foreground">
-                  <div>
-                    Uses project start command:{" "}
-                    <code>
-                      {data?.project.startCommand || "<not set – defaults>"}
-                    </code>
-                  </div>
+              <div className="grid gap-2 md:grid-cols-3">
+                <div className="space-y-1">
+                  <span className="text-muted-foreground text-[11px]">
+                    Start command
+                  </span>
+                  <Input
+                    value={startCommand}
+                    onChange={(e) => setStartCommand(e.target.value)}
+                    placeholder={
+                      templateRuntime === "PYTHON"
+                        ? "python main.py"
+                        : templateRuntime === "NODE"
+                        ? "npm run start"
+                        : "command to run your bot"
+                    }
+                    className="h-8 text-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    This command runs inside the container in the workdir below.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-muted-foreground text-[11px]">
+                    Workdir inside container
+                  </span>
+                  <Input
+                    value={templateWorkdir}
+                    onChange={(e) => setTemplateWorkdir(e.target.value)}
+                    placeholder="/app"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
                   {suggestedCmd && !hasDockerfile && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span>
+                    <div className="space-y-1 text-[11px] text-muted-foreground">
+                      <div>
                         Suggested:{" "}
                         <code className="bg-secondary px-1.5 py-0.5">
                           {suggestedCmd}
                         </code>
-                      </span>
-                      {suggestReason && (
-                        <span className="text-muted-foreground">
-                          ({suggestReason})
-                        </span>
-                      )}
+                        {suggestedWorkdir && (
+                          <>
+                            {" "}
+                            in{" "}
+                            <code className="bg-secondary px-1.5 py-0.5">
+                              {suggestedWorkdir}
+                            </code>
+                          </>
+                        )}
+                      </div>
+                      {suggestReason && <div>({suggestReason})</div>}
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={useSuggestedCommand}
                       >
-                        Use suggested command
+                        Apply suggestion
                       </Button>
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={saveTemplateConfig}
-                    disabled={loading}
-                  >
-                    Save template config
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => buildTemplate(false)}
-                    disabled={loading}
-                    className="gap-1.5"
-                  >
-                    Build
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => buildTemplate(true)}
-                    disabled={loading}
-                    className="gap-1.5"
-                  >
-                    Rebuild (no cache)
-                  </Button>
-                </div>
+              </div>
+
+              <div className="mt-2 flex flex-wrap justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={saveTemplateConfig}
+                  disabled={loading}
+                >
+                  Save template config
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => buildTemplate(false)}
+                  disabled={loading}
+                  className="gap-1.5"
+                >
+                  Build
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => buildTemplate(true)}
+                  disabled={loading}
+                  className="gap-1.5"
+                >
+                  Rebuild (no cache)
+                </Button>
               </div>
 
               {buildJobs.length > 0 && (
