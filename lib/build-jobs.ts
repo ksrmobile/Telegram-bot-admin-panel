@@ -128,10 +128,14 @@ export async function runTemplateBuildJob(jobId: number) {
       (project.startCommand as string | null | undefined) || null;
     if (!startCmdRaw || !startCmdRaw.trim()) {
       if (runtime === "PYTHON") {
-        startCmdRaw = "python main.py";
+        startCmdRaw = "python3 main.py";
       } else {
         startCmdRaw = "npm start";
       }
+    }
+    // Use python3 in container so it works on images that only have python3
+    if (runtime === "PYTHON" && startCmdRaw.startsWith("python ")) {
+      startCmdRaw = "python3 " + startCmdRaw.slice(7);
     }
     const startCmd = startCmdRaw.replace(/"/g, '\\"');
 
