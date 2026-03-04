@@ -98,6 +98,10 @@ export async function GET(_req: Request, { params }: Params) {
   let reason: string | null = null;
 
   if (runtime === "PYTHON") {
+    // Template build does WORKDIR + COPY src/ ., so workspace root is at workdir.
+    // Use workdir /app and command "python <path from workspace root>".
+    suggestedWorkdir = "/app";
+
     // 1. Root-level search in projectRoot
     for (const name of PYTHON_ENTRY_CANDIDATES) {
       const abs = path.join(projectRoot, name);
@@ -105,15 +109,7 @@ export async function GET(_req: Request, { params }: Params) {
         const relFromWorkspace = normalizeForCmd(
           path.relative(workspace, abs) || name
         );
-        const segments = relFromWorkspace.split("/");
-        const fileName = segments[segments.length - 1];
-        if (segments.length === 1) {
-          suggestedWorkdir = "/app";
-        } else {
-          const dirPath = segments.slice(0, -1).join("/");
-          suggestedWorkdir = `/app/${dirPath}`;
-        }
-        suggestedStartCommand = `python ${fileName}`;
+        suggestedStartCommand = `python ${relFromWorkspace}`;
         reason = `Found ${name} in ${
           projectRoot === workspace ? "project root" : `folder ${wrapperFolder}`
         }.`;
@@ -136,15 +132,7 @@ export async function GET(_req: Request, { params }: Params) {
             const abs = path.join(base1, name);
             if (fs.existsSync(abs)) {
               const rel = normalizeForCmd(path.relative(workspace, abs));
-              const segments = rel.split("/");
-              const fileName = segments[segments.length - 1];
-              if (segments.length === 1) {
-                suggestedWorkdir = "/app";
-              } else {
-                const dirPath = segments.slice(0, -1).join("/");
-                suggestedWorkdir = `/app/${dirPath}`;
-              }
-              suggestedStartCommand = `python ${fileName}`;
+              suggestedStartCommand = `python ${rel}`;
               reason = `Found ${name} at ${rel}.`;
               break outer;
             }
@@ -169,15 +157,7 @@ export async function GET(_req: Request, { params }: Params) {
                 const abs = path.join(base2, name);
                 if (fs.existsSync(abs)) {
                   const rel = normalizeForCmd(path.relative(workspace, abs));
-                  const segments = rel.split("/");
-                  const fileName = segments[segments.length - 1];
-                  if (segments.length === 1) {
-                    suggestedWorkdir = "/app";
-                  } else {
-                    const dirPath = segments.slice(0, -1).join("/");
-                    suggestedWorkdir = `/app/${dirPath}`;
-                  }
-                  suggestedStartCommand = `python ${fileName}`;
+                  suggestedStartCommand = `python ${rel}`;
                   reason = `Found ${name} at ${rel}.`;
                   break outer2;
                 }
