@@ -125,10 +125,13 @@ export async function gitClone(
 ): Promise<{ ok: boolean; error?: string }> {
   // Very conservative URL validation to avoid obviously malformed inputs.
   const trimmed = repoUrl.trim();
-  const httpLike = /^https?:\/\/[^\s]+$/i;
+  const httpsLike = /^https:\/\/[^\s]+$/i;
   const sshLike = /^git@[^:]+:[^\s]+$/;
-  if (!httpLike.test(trimmed) && !sshLike.test(trimmed)) {
-    return { ok: false, error: "Repository URL must be http(s) or git@host:path" };
+  if (!httpsLike.test(trimmed) && !sshLike.test(trimmed)) {
+    return {
+      ok: false,
+      error: "Repository URL must start with https:// or be an SSH git@host:path URL"
+    };
   }
 
   const args = ["clone", "--depth", "1"];
@@ -141,11 +144,16 @@ export async function gitClone(
     await runGit(args, cwd);
     return { ok: true };
   } catch (e: any) {
-    const msg =
+    const raw =
       typeof e?.message === "string"
         ? e.message
         : "git clone failed";
-    return { ok: false, error: msg };
+    let friendly = raw;
+    if (raw.includes("certificate") || raw.includes("CAfile")) {
+      friendly =
+        "TLS/SSL certificate verification failed when contacting Git server. The panel container may be missing CA certificates (ca-certificates). Rebuild the panel image and ensure ca-certificates are installed.";
+    }
+    return { ok: false, error: friendly };
   }
 }
 

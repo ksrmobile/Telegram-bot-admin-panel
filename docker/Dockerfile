@@ -11,10 +11,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install system dependencies used by the panel:
-# - openssl: for HTTPS and crypto
+# - ca-certificates: for HTTPS trust store
 # - git: for cloning/pulling bot repositories from the UI
+# - openssl: for HTTPS and crypto tooling
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl git \
+  && apt-get install -y --no-install-recommends ca-certificates git openssl \
+  && update-ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json ./

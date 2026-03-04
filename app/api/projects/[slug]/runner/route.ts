@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import { prisma } from "@/lib/prisma";
-import { resolveProjectPath } from "@/lib/paths";
+import { getProjectsRoot, resolveProjectPath } from "@/lib/paths";
 import {
   buildImage,
   runContainer,
@@ -66,12 +66,32 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Ensure workspace path is absolute before passing to Docker.
-  // In local dev PROJECTS_ROOT may be relative (e.g. "./data/projects"),
-  // but Docker bind mounts require an absolute host path.
+  // Ensure workspace path is absolute and rooted under PROJECTS_ROOT
+  // before passing to Docker. Bind mounts must use a host-valid path.
+  const projectsRoot = getProjectsRoot();
   const workspace = path.isAbsolute(project.workspacePath)
     ? project.workspacePath
-    : path.resolve(process.cwd(), project.workspacePath);
+    : path.join(projectsRoot, project.workspacePath);
+  try {
+    const st = await fs.promises.stat(workspace);
+    if (!st.isDirectory()) {
+      return NextResponse.json(
+        {
+          error:
+            "Workspace path is not a directory on host. Check PROJECTS_ROOT/data mount."
+        },
+        { status: 400 }
+      );
+    }
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "Workspace path does not exist on host. Ensure /data is bind-mounted and the project workspace was created."
+      },
+      { status: 400 }
+    );
+  }
   const containerName =
     project.dockerContainerName || `ksr-bot-${project.slug}`;
   const runnerMode = (project as any).runnerMode || "DOCKERFILE";

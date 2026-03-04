@@ -175,14 +175,9 @@ export async function runTemplateBuildJob(jobId: number) {
       ? `RUN apt-get update && apt-get install -y ${aptPkgs} && rm -rf /var/lib/apt/lists/*\n`
       : "";
 
-    const pythonPathLine =
-      runtime === "PYTHON"
-        ? `ENV PYTHONPATH=${workdir}\n`
-        : "";
-
     const dockerfile = `FROM ${baseImage}
 ${aptLines}WORKDIR ${workdir}
-${pythonPathLine}COPY src/ .
+COPY src/ .
 ${installLines}CMD ["sh", "-c", "${startCmd}"]
 `;
 

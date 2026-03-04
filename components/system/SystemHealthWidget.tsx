@@ -8,19 +8,34 @@ import { Server, HardDrive, ShieldCheck, ShieldAlert, Loader2 } from "lucide-rea
 import { useToast } from "../ui/toast";
 
 type Health = {
-  docker: { connected: boolean; version?: string | null; apiVersion?: string | null; error?: string | null };
+  docker: {
+    connected: boolean;
+    version?: string | null;
+    apiVersion?: string | null;
+    error?: string | null;
+    dockerPingOk?: boolean;
+    dockerSocketExists?: boolean;
+  };
   disk: { path: string; freeMb?: number | null; totalMb?: number | null; usedMb?: number };
   https?: string;
   inContainer?: boolean;
   socketPath?: string;
   socketPathExists?: boolean;
   dockerHost?: string | null;
+  host?: {
+    projectsRoot: string;
+    dataRoot: string;
+    projectsRootExists: boolean;
+    dataMountOk: boolean;
+    dataMountSource?: string | null;
+  };
 };
 
 export function SystemHealthWidget() {
   const { push } = useToast();
   const [health, setHealth] = useState<Health | null>(null);
   const [loading, setLoading] = useState(true);
+  const [gitChecking, setGitChecking] = useState(false);
 
   async function load(test?: boolean) {
     setLoading(true);
@@ -74,14 +89,60 @@ export function SystemHealthWidget() {
   const dockerOk = health?.docker?.connected ?? false;
   const freeMb = health?.disk?.freeMb;
   const lowDisk = freeMb != null && freeMb < 500;
+  const dataMountOk = health?.host?.dataMountOk ?? true;
+  const projectsRootExists = health?.host?.projectsRootExists ?? true;
 
   return (
     <Card>
       <CardHeader className="flex items-center justify-between">
         <CardTitle className="text-sm font-medium">System health</CardTitle>
-        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => load(true)} disabled={loading}>
-          {loading ? "Testing…" : "Test Docker connection"}
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => load(true)} disabled={loading}>
+            {loading ? "Testing…" : "Test Docker"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs"
+            onClick={async () => {
+              setGitChecking(true);
+              try {
+                const res = await fetch("/api/system/git-check");
+                const data = await res.json();
+                if (data.ok) {
+                  push({
+                    title: "Git (HTTPS) OK",
+                    description: "Successfully talked to GitHub over HTTPS."
+                  });
+                } else if (data.caError) {
+                  push({
+                    title: "Git TLS error",
+                    description:
+                      "Certificate verification failed. Ensure ca-certificates are installed and the panel image is rebuilt.",
+                    variant: "destructive"
+                  });
+                } else {
+                  push({
+                    title: "Git check failed",
+                    description: data.error || "git ls-remote failed",
+                    variant: "destructive"
+                  });
+                }
+              } catch {
+                push({
+                  title: "Git check failed",
+                  description: "Unable to call /api/system/git-check",
+                  variant: "destructive"
+                });
+              } finally {
+                setGitChecking(false);
+              }
+            }}
+            disabled={gitChecking}
+          >
+            {gitChecking ? "Checking Git…" : "Test Git (HTTPS)"}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex items-center justify-between rounded-lg border border-border/60 bg-card/60 px-4 py-3">
@@ -132,6 +193,33 @@ export function SystemHealthWidget() {
           )}
         </div>
       </CardContent>
+      {health?.host && (
+        <CardContent className="border-t border-border/60 pt-4 text-xs text-muted-foreground space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-medium">Projects root</span>{" "}
+              <code className="rounded bg-secondary px-1">{health.host.projectsRoot}</code>
+            </div>
+            <Badge variant={projectsRootExists ? "success" : "destructive"}>
+              {projectsRootExists ? "Exists" : "Missing"}
+            </Badge>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-medium">Data mount</span>{" "}
+              <code className="rounded bg-secondary px-1">{health.host.dataRoot}</code>
+              {health.host.dataMountSource && (
+                <span className="ml-1 text-[11px] text-muted-foreground">
+                  ({health.host.dataMountSource})
+                </span>
+              )}
+            </div>
+            <Badge variant={dataMountOk ? "success" : "warning"}>
+              {dataMountOk ? "OK" : "Not a bind mount?"}
+            </Badge>
+          </div>
+        </CardContent>
+      )}
       {health?.docker && !health.docker.connected && (
         <CardContent className="border-t border-border/60 pt-4 text-xs text-muted-foreground">
           Docker: {health.docker.error}. Ensure DOCKER_HOST or socket is configured and mounted.
@@ -142,11 +230,11 @@ export function SystemHealthWidget() {
           Low disk space. Free at least 500 MB for builds and backups.
         </CardContent>
       )}
-      {health && !dockerOk && (
+      {health && (!dockerOk || !dataMountOk || !projectsRootExists) && (
         <CardContent className="border-t border-border/60 pt-4 space-y-3 text-xs text-muted-foreground">
           <div>
             <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-foreground">
-              Docker connection setup
+              Docker & storage setup
             </div>
             <p>
               The panel cannot reach Docker. Choose one of the supported modes:
@@ -184,6 +272,37 @@ export function SystemHealthWidget() {
                 </li>
                 <li>Recreate the panel container and click “Test Docker connection”.</li>
               </ul>
+            </div>
+          )}
+          {health?.host && !dataMountOk && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+              <div className="flex items-center gap-2 text-amber-100">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                <span className="font-semibold text-[11px] uppercase tracking-wide">
+                  Projects directory is not on a host bind mount
+                </span>
+              </div>
+              <p className="mt-1">
+                The panel expects <code className="rounded bg-secondary px-1">{health.host.dataRoot}</code> to be a
+                bind-mounted host directory (e.g. volume <code className="rounded bg-secondary px-1">/data:/data</code>{" "}
+                in docker-compose). Without this, bot containers will see empty workspaces.
+              </p>
+            </div>
+          )}
+          {health?.host && !projectsRootExists && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+              <div className="flex items-center gap-2 text-amber-100">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                <span className="font-semibold text-[11px] uppercase tracking-wide">
+                  Projects directory missing
+                </span>
+              </div>
+              <p className="mt-1">
+                The configured projects root{" "}
+                <code className="rounded bg-secondary px-1">{health.host.projectsRoot}</code> does not exist inside the
+                container. Ensure the panel&apos;s <code className="rounded bg-secondary px-1">PROJECTS_ROOT</code> env
+                matches the host bind mount (e.g. <code className="rounded bg-secondary px-1">/data/projects</code>).
+              </p>
             </div>
           )}
         </CardContent>
